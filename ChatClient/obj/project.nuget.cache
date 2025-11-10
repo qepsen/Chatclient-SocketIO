@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "NpWg9JTm7rY=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\ludwi\\RiderProjects\\ChatExample\\ChatClient\\ChatClient.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ludwi\\.nuget\\packages\\socketio.core\\3.1.2\\socketio.core.3.1.2.nupkg.sha512",
+    "C:\\Users\\ludwi\\.nuget\\packages\\socketio.serializer.core\\3.1.2\\socketio.serializer.core.3.1.2.nupkg.sha512",
+    "C:\\Users\\ludwi\\.nuget\\packages\\socketio.serializer.systemtextjson\\3.1.2\\socketio.serializer.systemtextjson.3.1.2.nupkg.sha512",
+    "C:\\Users\\ludwi\\.nuget\\packages\\socketioclient\\3.1.2\\socketioclient.3.1.2.nupkg.sha512",
+    "C:\\Users\\ludwi\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
+    "C:\\Users\\ludwi\\.nuget\\packages\\system.text.json\\8.0.4\\system.text.json.8.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}
