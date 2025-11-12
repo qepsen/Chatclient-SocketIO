@@ -5,12 +5,12 @@ class Program
 {
     static async Task Main()
     {
-        Console.WriteLine("=== Socket.IO Chatklient ===");
+        Console.WriteLine("=== Socket.IO Chat Client ===");
         
         string username;
         do
         {
-            Console.Write("Ange ditt användarnamn: ");
+            Console.Write("Enter your username: ");
             username = Console.ReadLine()?.Trim();
         } while (string.IsNullOrWhiteSpace(username));
 
@@ -23,13 +23,13 @@ class Program
         {
             string input = Console.ReadLine()?.Trim();
             if (string.IsNullOrWhiteSpace(input)) continue;
-
+            
             if (!input.StartsWith("/"))
             {
                 await chat.SendMessage(input);
                 continue;
             }
-
+            
             var parts = input.Split(' ', 2);
             var command = parts[0].ToLower();
             var argument = parts.Length > 1 ? parts[1] : "";
@@ -38,7 +38,7 @@ class Program
             {
                 case "/quit":
                     await chat.Disconnect();
-                    Console.WriteLine("Hej då!");
+                    Console.WriteLine("Goodbye!");
                     return;
                 
                 case "/help":
@@ -49,7 +49,7 @@ class Program
                     if (!string.IsNullOrWhiteSpace(argument))
                         await chat.JoinRoom(argument);
                     else
-                        Console.WriteLine("Användning: /join <rumnamn>");
+                        Console.WriteLine("Usage: /join <roomname>");
                     break;
                 
                 case "/dm":
@@ -57,11 +57,18 @@ class Program
                     if (dmParts.Length == 2)
                         await chat.SendDirectMessage(dmParts[0], dmParts[1]);
                     else
-                        Console.WriteLine("Användning: /dm <användare> <meddelande>");
+                        Console.WriteLine("Usage: /dm <user> <message>");
+                    break;
+                
+                case "/history":
+                    int count = 10;
+                    if (!string.IsNullOrWhiteSpace(argument) && int.TryParse(argument, out int parsed))
+                        count = parsed;
+                    chat.ShowHistory(count);
                     break;
                 
                 default:
-                    Console.WriteLine("Okänt kommando. Skriv /help för hjälp.");
+                    Console.WriteLine("Unknown command. Type /help for help.");
                     break;
             }
         }
@@ -69,11 +76,12 @@ class Program
 
     static void ShowHelp()
     {
-        Console.WriteLine("\nKommandon:");
-        Console.WriteLine("  /help           - Visa kommandon");
-        Console.WriteLine("  /join <rum>     - Byt rum");
-        Console.WriteLine("  /dm <user> <text> - Skicka direktmeddelande");
-        Console.WriteLine("  /quit           - Avsluta\n");
+        Console.WriteLine("\nCommands:");
+        Console.WriteLine("  /help              - Show commands");
+        Console.WriteLine("  /join <room>       - Switch room");
+        Console.WriteLine("  /dm <user> <msg>   - Send direct message");
+        Console.WriteLine("  /history [count]   - Show history (default 10)");
+        Console.WriteLine("  /quit              - Exit\n");
     }
 }
 

@@ -18,3 +18,4 @@ C:\Users\ludwi\RiderProjects\ChatExample\ChatClient\obj\Debug\net9.0\refint\Chat
 C:\Users\ludwi\RiderProjects\ChatExample\ChatClient\obj\Debug\net9.0\ChatClient.pdb
 C:\Users\ludwi\RiderProjects\ChatExample\ChatClient\obj\Debug\net9.0\ChatClient.genruntimeconfig.cache
 C:\Users\ludwi\RiderProjects\ChatExample\ChatClient\obj\Debug\net9.0\ref\ChatClient.dll
+C:\Users\ludwi\RiderProjects\ChatExample\ChatClient\obj\Debug\net9.0\ChatClient.sourcelink.json
