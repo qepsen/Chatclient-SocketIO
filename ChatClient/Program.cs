@@ -5,7 +5,7 @@ class Program
 {
     static async Task Main()
     {
-        Console.WriteLine("=== Socket.IO Chat Client ===");
+        Console.WriteLine("ChatClient");
         
         string username;
         do
