@@ -15,32 +15,33 @@
 
 ## Available commands
 
-# '/help'
+## '/help'
 Show all available commands
 ```
 /help
 ```
 
-# '/dm <user> <message>' 
+## '/dm <user> <message>' 
 Send a private message to a specific user.
 ```
 /dm Calle hello friend! 
 ``` 
 
-# '/join <roomname>' 
+## '/join <roomname>' 
 Creates or joins a chat room.
 ```
 /join SYS25D
 ```
 
-# '/history'
+## '/history'
 Showing the message history, default is set to the last 20 messages. 
 ```
 /history
 ```
 
-# '/quit' 
+## '/quit' 
 Clean exit from the application. 
 ```
 /quit
 ```
+
