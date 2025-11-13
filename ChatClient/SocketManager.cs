@@ -57,24 +57,18 @@ public class SocketManager
         socket.OnConnected += async (sender, e) =>
         {
             Console.WriteLine("Connected to server!");
-            await Task.Delay(500);
+            await Task.Delay(1000);
             await JoinRoom(currentRoom);
         };
 
         socket.OnDisconnected += (sender, e) => 
             Console.WriteLine("Disconnected from server");
 
-        socket.On("ludwigs_message", response =>
+        socket.On("ludwigs_message", response =>  /*Ändra Event här!*/
         {
             var data = response.GetValue<MessageData>();
-            var message = new TextMessage 
-            { 
-                Sender = data.sender, 
-                Content = data.message
-            };
-            message.Display();
-            messageHistory.Add(message);
-            SaveHistory();
+            var message = new TextMessage { Sender = data.sender, Content = data.message };
+            DisplayAndSave(message);
         });
 
         socket.On("direct_message", response =>
@@ -87,22 +81,27 @@ public class SocketManager
                 Content = data.message,
                 IsOutgoing = false
             };
-            message.Display();
-            messageHistory.Add(message);
-            SaveHistory();
+            DisplayAndSave(message);
         });
 
         socket.On("user_joined", response =>
         {
             var data = response.GetValue<UserEventData>();
-            Console.WriteLine($"→ {data.username} joined {data.room}");
+            Console.WriteLine($" {data.username} joined {data.room}");
         });
 
         socket.On("user_left", response =>
         {
             var data = response.GetValue<UserEventData>();
-            Console.WriteLine($"← {data.username} left {data.room}");
+            Console.WriteLine($" {data.username} left {data.room}");
         });
+    }
+
+    private void DisplayAndSave(ChatMessage message)
+    {
+        message.Display();
+        messageHistory.Add(message);
+        SaveHistory();
     }
 
     public async Task Connect()
@@ -120,14 +119,8 @@ public class SocketManager
 
     public async Task SendMessage(string message)
     {
-        var localMessage = new TextMessage
-        {
-            Sender = username,
-            Content = message
-        };
-        localMessage.Display();
-        messageHistory.Add(localMessage);
-        SaveHistory();
+        var localMessage = new TextMessage { Sender = username, Content = message };
+        DisplayAndSave(localMessage);
         
         await socket.EmitAsync("ludwigs_message", new
         {
@@ -141,7 +134,7 @@ public class SocketManager
     {
         var previousRoom = currentRoom;
         currentRoom = room;
-        Console.WriteLine($"→ You are now in room: {room}");
+        Console.WriteLine($"You are now in room: {room}");
         return socket.EmitAsync("join_room", new { username, room, previousRoom });
     }
 
@@ -154,21 +147,18 @@ public class SocketManager
             Content = message,
             IsOutgoing = true
         };
-        dm.Display();
-        messageHistory.Add(dm);
-        SaveHistory();
+        DisplayAndSave(dm);
         
         await socket.EmitAsync("direct_message", new { from = username, to = recipient, message });
     }
 
-    public void ShowHistory(int count = 10)
+    public void ShowHistory(int count = 20)
     {
         Console.WriteLine($"\n--- Last {count} messages ---");
-        var recent = messageHistory.Count > count 
-            ? messageHistory.GetRange(messageHistory.Count - count, count)
-            : messageHistory;
+        var start = Math.Max(0, messageHistory.Count - count);
+        var messages = messageHistory.GetRange(start, messageHistory.Count - start);
         
-        foreach (var msg in recent)
+        foreach (var msg in messages)
             msg.Display();
         Console.WriteLine();
     }
@@ -177,14 +167,10 @@ public class SocketManager
     {
         try
         {
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            var json = JsonSerializer.Serialize(messageHistory, options);
+            var json = JsonSerializer.Serialize(messageHistory, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(HistoryFile, json);
         }
-        catch
-        {
-            
-        }
+        catch { }
     }
 
     private void LoadHistory()
@@ -199,12 +185,9 @@ public class SocketManager
                     messageHistory.AddRange(loaded);
             }
         }
-        catch
-        {
-            
-        }
+        catch { }
     }
-    
+
     private record MessageData(string sender, string message, string room);
     private record DirectMessageData(string from, string to, string message);
     private record UserEventData(string username, string room);

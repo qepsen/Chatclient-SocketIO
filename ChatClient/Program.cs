@@ -7,29 +7,41 @@ class Program
     {
         Console.WriteLine("ChatClient");
         
-        string username;
-        do
-        {
-            Console.Write("Enter your username: ");
-            username = Console.ReadLine()?.Trim();
-        } while (string.IsNullOrWhiteSpace(username));
-
+        string username = GetUsername();
         var chat = new SocketManager(username);
         await chat.Connect();
 
         ShowHelp();
+        await ProcessCommands(chat);
         
+        Console.WriteLine("Goodbye!");
+    }
+
+    static string GetUsername()
+    {
+        string username;
+        do
+        {
+            Console.Write("Enter your username:");
+            username = Console.ReadLine()?.Trim();
+        } while (string.IsNullOrWhiteSpace(username));
+        
+        return username;
+    }
+
+    static async Task ProcessCommands(SocketManager chat)
+    {
         while (true)
         {
             string input = Console.ReadLine()?.Trim();
             if (string.IsNullOrWhiteSpace(input)) continue;
-            
+
             if (!input.StartsWith("/"))
             {
                 await chat.SendMessage(input);
                 continue;
             }
-            
+
             var parts = input.Split(' ', 2);
             var command = parts[0].ToLower();
             var argument = parts.Length > 1 ? parts[1] : "";
@@ -38,7 +50,6 @@ class Program
             {
                 case "/quit":
                     await chat.Disconnect();
-                    Console.WriteLine("Goodbye!");
                     return;
                 
                 case "/help":
@@ -61,9 +72,7 @@ class Program
                     break;
                 
                 case "/history":
-                    int count = 10;
-                    if (!string.IsNullOrWhiteSpace(argument) && int.TryParse(argument, out int parsed))
-                        count = parsed;
+                    var count = int.TryParse(argument, out int parsed) ? parsed : 10;
                     chat.ShowHistory(count);
                     break;
                 
@@ -80,7 +89,7 @@ class Program
         Console.WriteLine("  /help              - Show commands");
         Console.WriteLine("  /join <room>       - Switch room");
         Console.WriteLine("  /dm <user> <msg>   - Send direct message");
-        Console.WriteLine("  /history [count]   - Show history (default 10)");
+        Console.WriteLine("  /history           - Show history ");
         Console.WriteLine("  /quit              - Exit\n");
     }
 }

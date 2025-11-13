@@ -1,0 +1,46 @@
+# ChatClient with Socket.IO
+
+### Created by [Ludwig Eriksson](https://github.com/qepsen)
+
+### Features
+- Chat function with Socket.IO 
+- Enter with a username
+- Message with others in different rooms 
+- Send direct messages to a specific user
+- Show chat history 
+- Notifications when a user joins or leaves the chat
+
+### Client startup
+ When the application starts you will need to enter your username to join the general chat room and start messaging. When you join the client for the first time the '/help' command will automatically show to help you get started.  
+
+## Available commands
+
+# '/help'
+Show all available commands
+```
+/help
+```
+
+# '/dm <user> <message>' 
+Send a private message to a specific user.
+```
+/dm Calle hello friend! 
+``` 
+
+# '/join <roomname>' 
+Creates or joins a chat room.
+```
+/join SYS25D
+```
+
+# '/history'
+Showing the message history, default is set to the last 20 messages. 
+```
+/history
+```
+
+# '/quit' 
+Clean exit from the application. 
+```
+/quit
+```
