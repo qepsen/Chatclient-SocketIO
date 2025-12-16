@@ -5,34 +5,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using SocketIOClient;
 
-public abstract class ChatMessage
-{
-    public string Sender { get; set; } = "";
-    public DateTime Timestamp { get; set; } = DateTime.Now;
-    public abstract void Display();
-}
-
-public class TextMessage : ChatMessage
-{
-    public string Content { get; set; } = "";
-    
-    public override void Display() =>
-        Console.WriteLine($"[{Timestamp:HH:mm:ss}] {Sender}: {Content}");
-}
-
-public class DirectMessage : ChatMessage
-{
-    public string Content { get; set; } = "";
-    public string Recipient { get; set; } = "";
-    public bool IsOutgoing { get; set; }
-    
-    public override void Display()
-    {
-        var prefix = IsOutgoing ? $"DM to {Recipient}" : $"DM from {Sender}";
-        Console.WriteLine($"[{Timestamp:HH:mm:ss}] [{prefix}]: {Content}");
-    }
-}
-
 public class SocketManager
 {
     private readonly SocketIOClient.SocketIO socket;
@@ -40,6 +12,13 @@ public class SocketManager
     private string currentRoom = "general";
     private readonly List<ChatMessage> messageHistory = new();
     private const string HistoryFile = "chat_history.json";
+    
+    // Event name constants
+    private const string MessageEvent = "ludwigs_message";
+    private const string DirectMessageEvent = "direct_message";
+    private const string JoinRoomEvent = "join_room";
+    private const string UserJoinedEvent = "user_joined";
+    private const string UserLeftEvent = "user_left";
 
     public SocketManager(string username)
     {
@@ -57,43 +36,47 @@ public class SocketManager
         socket.OnConnected += async (sender, e) =>
         {
             Console.WriteLine("Connected to server!");
-            await Task.Delay(1000);
+            await Task.Delay(500);
             await JoinRoom(currentRoom);
         };
 
         socket.OnDisconnected += (sender, e) => 
             Console.WriteLine("Disconnected from server");
 
-        socket.On("ludwigs_message", response =>  /*Ändra Event här!*/
+        socket.On(MessageEvent, response =>
         {
             var data = response.GetValue<MessageData>();
             var message = new TextMessage { Sender = data.sender, Content = data.message };
             DisplayAndSave(message);
         });
 
-        socket.On("direct_message", response =>
+        socket.On(DirectMessageEvent, response =>
         {
             var data = response.GetValue<DirectMessageData>();
-            var message = new DirectMessage 
-            { 
-                Sender = data.from,
-                Recipient = data.to,
-                Content = data.message,
-                IsOutgoing = false
-            };
-            DisplayAndSave(message);
+            
+            if (data.to == username || data.from == username)
+            {
+                var message = new DirectMessage 
+                { 
+                    Sender = data.from,
+                    Recipient = data.to,
+                    Content = data.message,
+                    IsOutgoing = data.from == username
+                };
+                DisplayAndSave(message);
+            }
         });
 
-        socket.On("user_joined", response =>
+        socket.On(UserJoinedEvent, response =>
         {
             var data = response.GetValue<UserEventData>();
-            Console.WriteLine($" {data.username} joined {data.room}");
+            Console.WriteLine($"→ {data.username} joined {data.room}");
         });
 
-        socket.On("user_left", response =>
+        socket.On(UserLeftEvent, response =>
         {
             var data = response.GetValue<UserEventData>();
-            Console.WriteLine($" {data.username} left {data.room}");
+            Console.WriteLine($"← {data.username} left {data.room}");
         });
     }
 
@@ -122,7 +105,7 @@ public class SocketManager
         var localMessage = new TextMessage { Sender = username, Content = message };
         DisplayAndSave(localMessage);
         
-        await socket.EmitAsync("ludwigs_message", new
+        await socket.EmitAsync(MessageEvent, new
         {
             sender = username,
             message = message,
@@ -134,12 +117,14 @@ public class SocketManager
     {
         var previousRoom = currentRoom;
         currentRoom = room;
-        Console.WriteLine($"You are now in room: {room}");
-        return socket.EmitAsync("join_room", new { username, room, previousRoom });
+        Console.WriteLine($"→ You are now in room: {room}");
+        return socket.EmitAsync(JoinRoomEvent, new { username, room, previousRoom });
     }
 
     public async Task SendDirectMessage(string recipient, string message)
     {
+        await socket.EmitAsync(DirectMessageEvent, new { from = username, to = recipient, message });
+        
         var dm = new DirectMessage 
         { 
             Sender = username,
@@ -147,14 +132,12 @@ public class SocketManager
             Content = message,
             IsOutgoing = true
         };
-        DisplayAndSave(dm);
-        
-        await socket.EmitAsync("direct_message", new { from = username, to = recipient, message });
+        dm.Display();
     }
 
-    public void ShowHistory(int count = 20)
+    public void ShowHistory(int count = 10)
     {
-        Console.WriteLine($"\n--- Last {count} messages ---");
+        Console.WriteLine($"\nLast {count} messages");
         var start = Math.Max(0, messageHistory.Count - count);
         var messages = messageHistory.GetRange(start, messageHistory.Count - start);
         

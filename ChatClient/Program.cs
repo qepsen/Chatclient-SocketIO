@@ -22,7 +22,7 @@ class Program
         string username;
         do
         {
-            Console.Write("Enter your username:");
+            Console.Write("Enter your username: ");
             username = Console.ReadLine()?.Trim();
         } while (string.IsNullOrWhiteSpace(username));
         
@@ -89,7 +89,7 @@ class Program
         Console.WriteLine("  /help              - Show commands");
         Console.WriteLine("  /join <room>       - Switch room");
         Console.WriteLine("  /dm <user> <msg>   - Send direct message");
-        Console.WriteLine("  /history           - Show history ");
+        Console.WriteLine("  /history [count]   - Show history (default 10)");
         Console.WriteLine("  /quit              - Exit\n");
     }
 }
