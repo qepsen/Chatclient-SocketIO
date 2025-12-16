@@ -13,7 +13,6 @@ public class SocketManager
     private readonly List<ChatMessage> messageHistory = new();
     private const string HistoryFile = "chat_history.json";
     
-    // Event name constants
     private const string MessageEvent = "ludwigs_message";
     private const string DirectMessageEvent = "direct_message";
     private const string JoinRoomEvent = "join_room";
